@@ -1,0 +1,11 @@
+__pycache__/
+
+/output/
+/pretrained/
+/dataset/test_audio/
+/data_simulation/example/simulated/
+
+*.out
+/script/
+/exp*/
+.log

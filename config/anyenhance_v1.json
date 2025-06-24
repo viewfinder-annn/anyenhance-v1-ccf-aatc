@@ -1,0 +1,76 @@
+{
+    "dataset": {
+        "sample_rate": 44100,
+        "batch_size": 32,
+        "num_workers": 16,
+        "seq_len": 133120, // 512 * 260, ~3.1s
+        "jsonl_file_path": "/mnt/data4/zhangjunan/ccf-aatc/data/train_v1/train_v1.jsonl",
+        "test_noisy_path": "./dataset/debug_audio/noisy",
+    },
+    "model": {
+        "dac_path": "./pretrained/dac/weights.pth",
+        "MaskGitTransformer": {
+            "num_tokens": 1024,
+            "seq_len": 260,
+            "dim": 512,
+            "depth": 6,
+            "dim_head": 32,
+            "heads": 16,
+            "ff_mult": 4,
+            "vq_layers": 9,
+            "use_rotary_pos_enc": true
+        },
+        "AudioEncoder": {
+            "dim": 512,
+            "seq_len": 260,
+            "input_dim": 1025,
+            "n_fft": 2048,
+            "hop_length": 512,
+            "win_length": 2048,
+            "mlp_layers": [
+                1024,
+                512
+            ],
+            "transformer_layers": 4,
+            "transformer_dim": 512,
+            "transformer_dim_head": 32,
+            "transformer_heads": 16,
+            "transformer_ff_mult": 4,
+            "use_rotary_pos_enc": true
+        },
+        "AnyEnhance_v1": {
+            "seq_len": 260,
+            "vq_layers": 9,
+            "cond_drop_prob": 0.1,
+            "return_audio_embed": true
+        }
+    },
+    "train": {
+        "device": "cuda",
+        "epochs": -1, // -1 means infinite
+        "encoder_loss": [
+            {
+                "type": "semantic",
+                "weight": 1.0,
+            },
+        ],
+        "optimizer": "adam",
+        "adam": {
+            "betas": [
+                0.9,
+                0.98
+            ],
+            "eps": 1e-09
+        },
+        "scheduler": "linear",
+        "linear": {
+            "num_warmup_steps": 4000,
+            "num_training_steps": 1000000
+        },
+        "learning_rate": 1e-04,
+        "save_every_step": 1000,
+        "keep_every_step": 100000,
+        "eval_every_step": 5000,
+        "keep_ckpts": 1,
+    }
+}
