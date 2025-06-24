@@ -31,6 +31,16 @@ huggingface-cli download facebook/w2v-bert-2.0
 
 If you have trouble with network, you can try changing the mirror to `https://hf-mirror.com/` like this: `export HF_ENDPOINT=https://hf-mirror.com`
 
+## Prepare download baseline model weights
+
+**Disclaimer: The baseline model is not the same as the one in the original [anyenhance paper](https://arxiv.org/abs/2501.15417), it is only used for this competition.** The baseline model is a simplified version of the AnyEnhance model with semantic alignment loss, which:
+
+1. has a smaller model size, and different training data.
+2. does not explicitly activate the prompt-guidance mechanism.
+3. does not use the self-critic mechanism.
+
+You can find the baseline weights at [TODO](https://TODO). The baseline was trained on 2×A800 GPUs using our provided training set for 200k steps. For more parameters, please refer to `config/anyenhance_v1.json`.
+
 ## Data Preparation
 
 ### Baseline Training Data
@@ -140,3 +150,16 @@ python evaluate.py \
 ### Data Simulation
 
 We provide two scripts to simulate data. The first one simulates noisy-clean audio from (speech, noise, rir) pairs, and the second one simulates MP3 encoded audio from clean audio. The scripts are under `data_simulation` folder. You can refer to [data_simulation/README.md](data_simulation/README.md) for more details.
+
+## Citations
+
+You can cite the original paper as follows:
+
+```bibtex
+@article{zhang2025anyenhance,
+  title={AnyEnhance: A Unified Generative Model with Prompt-Guidance and Self-Critic for Voice Enhancement},
+  author={Zhang, Junan and Yang, Jing and Fang, Zihao and Wang, Yuancheng and Zhang, Zehua and Wang, Zhuo and Fan, Fan and Wu, Zhizheng},
+  journal={IEEE/ACM Transactions on Audio, Speech, and Language Processing},
+  year={2025}
+}
+```
