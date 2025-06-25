@@ -1,3 +1,15 @@
+# Baseline for the CCF-AATC 2025 Challenge [Track 1](https://ccf-aatc.org.cn/)
+
+This repository provides a baseline for the CCF-AATC 2025 Challenge Track 1, which aims to do speech restoration under multiple distortions:
+
+- Acoustic Degradation: (Noise & Reverberation)
+- Signal Chain Artifacts: (Clipping, Bandwidth Limitation, Codec Distortions)
+- Processing Artifacts: (Residual & Algorithm-induced Distortions)
+
+Our baseline model is a lightweight version of the [AnyEnhance](https://arxiv.org/abs/2501.15417) framework. We provide a [pre-trained checkpoint](https://aishell-jiaofu.oss-cn-hangzhou.aliyuncs.com/ccf2025/aatc_track1/baseline/epoch-83-step-200000-loss-4.4187.tar) that has been trained on the challenge's training dataset.
+
+> **!!Important: The baseline model is not the same as the one in the original [anyenhance paper](https://arxiv.org/abs/2501.15417), it is only used for this challenge.**
+
 ## Installation
 
 ```bash
@@ -33,19 +45,29 @@ If you have trouble with network, you can try changing the mirror to `https://hf
 
 ## Prepare download baseline model weights
 
-**Disclaimer: The baseline model is not the same as the one in the original [anyenhance paper](https://arxiv.org/abs/2501.15417), it is only used for this competition.** The baseline model is a simplified version of the AnyEnhance model with semantic alignment loss, which:
+The baseline model is a simplified version of the AnyEnhance model with semantic alignment loss, which:
 
 1. has a smaller model size, and different training data.
 2. does not explicitly activate the prompt-guidance mechanism.
 3. does not use the self-critic mechanism.
 
-You can find the baseline weights at [TODO](https://TODO). The baseline was trained on 2×A800 GPUs using our provided training set for 200k steps. For more parameters, please refer to `config/anyenhance_v1.json`.
+You can find the baseline weights [here](https://aishell-jiaofu.oss-cn-hangzhou.aliyuncs.com/ccf2025/aatc_track1/baseline/epoch-83-step-200000-loss-4.4187.tar). The baseline was trained on 2×A800 GPUs using our provided training set for 200k steps. For more configuration, please refer to `config/anyenhance_v1.json`.
 
 ## Data Preparation
 
-### Baseline Training Data
+### Baseline Training Set & Development Set
 
-We have provided training data for the baseline model in `TODO`, you can download it from [TODO](https://TODO). The data needs approximately **160GB** of disk space. The data includes approximately **200 hours** of paired audio, which consists of clean audio, paired noisy audio, MP3 encoded audio, and a enhanced model's output corresponds to the noisy audio, **all under the same file name**. The file structure is as follows:
+The training data and the development set are available for download to all registered participants. To gain access, please register on the official competition website:
+
+**[https://ccf-aatc.org.cn/](https://ccf-aatc.org.cn/)**
+
+Upon registration, you will find the download links.
+
+#### Training Dataset
+
+The training dataset requires approximately **320GB** of disk space and contains around **200 hours** of paired audio. For each entry, the data includes clean audio, a corresponding noisy version, an MP3-encoded version, and the output from a baseline enhancement model. Crucially, **all these associated files share the same base filename** for easy pairing.
+
+The file structure is organized as follows:
 
 ```
 train_v1/
@@ -87,7 +109,18 @@ The metadata is arranged by a jsonl file `train_v1.jsonl`,  which contains the p
 {"clean": "/path/to/clean/0002.wav", "noisy": "/path/to/noisy/0002.wav", "other_distortion": ["/path/to/encoded/0002.wav", "/path/to/generated/anyenhance/0002.wav"]}
 ```
 
-### Custom Data
+#### Development Dataset
+
+The development dataset contains 500 paired audio files, which are used for evaluation. It only has the clean and noisy audio folders, but covers all the distortion types described above.
+
+### Data Simulation & Custom Data
+
+#### Data Simulation
+
+We provide two scripts to simulate data. The first one simulates noisy-clean audio from (speech, noise, rir) pairs, and the second one simulates MP3 encoded audio from clean audio. The scripts are under `data_simulation` folder. You can refer to [data_simulation/README.md](data_simulation/README.md) for more details.
+
+#### Custom Data
+
 If you want to train the model with your own data, please create the same structure as above. The metadata should be arranged in a jsonl file, in which each line is a json object containing `clean`, `noisy`, and `other_distortion` keys. The `clean` key should point to the clean audio file, the `noisy` key should point to the noisy audio file, and the `other_distortion` key should be a list of paths to other distortion types (e.g., MP3 encoded audio, enhanced audio).
 
 ## Training
@@ -144,12 +177,6 @@ python evaluate.py \
     --intrusive \
     --wer
 ```
-
-## Other Resources
-
-### Data Simulation
-
-We provide two scripts to simulate data. The first one simulates noisy-clean audio from (speech, noise, rir) pairs, and the second one simulates MP3 encoded audio from clean audio. The scripts are under `data_simulation` folder. You can refer to [data_simulation/README.md](data_simulation/README.md) for more details.
 
 ## Citations
 
