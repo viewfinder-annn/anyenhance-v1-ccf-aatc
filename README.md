@@ -6,7 +6,7 @@ This repository provides a baseline for the CCF-AATC 2025 Challenge Track 1, whi
 - Signal Chain Artifacts: (Clipping, Bandwidth Limitation, Codec Distortions)
 - Processing Artifacts: (Residual & Algorithm-induced Distortions)
 
-Our baseline model is a lightweight version of the [AnyEnhance](https://arxiv.org/abs/2501.15417) framework. We provide a [pre-trained checkpoint](https://aishell-jiaofu.oss-cn-hangzhou.aliyuncs.com/ccf2025/aatc_track1/baseline/epoch-83-step-200000-loss-4.4187.tar) that has been trained on the challenge's training dataset.
+Our baseline model is a lightweight version of the [AnyEnhance](https://arxiv.org/abs/2501.15417) framework. We provide a [pre-trained checkpoint](#prepare-baseline-model-weights) that has been trained on the challenge's training dataset.
 
 > **!!Important: The baseline model is not the same as the one in the original [anyenhance paper](https://arxiv.org/abs/2501.15417), it is only used for this challenge.**
 
@@ -43,7 +43,7 @@ huggingface-cli download facebook/w2v-bert-2.0
 
 If you have trouble with network, you can try changing the mirror to `https://hf-mirror.com/` like this: `export HF_ENDPOINT=https://hf-mirror.com`
 
-## Prepare download baseline model weights
+## Prepare baseline model weights
 
 The baseline model is a simplified version of the AnyEnhance model with semantic alignment loss, which:
 
@@ -52,6 +52,39 @@ The baseline model is a simplified version of the AnyEnhance model with semantic
 3. does not use the self-critic mechanism.
 
 You can find the baseline weights [here](https://aishell-jiaofu.oss-cn-hangzhou.aliyuncs.com/ccf2025/aatc_track1/baseline/epoch-83-step-200000-loss-4.4187.tar). The baseline was trained on 2×A800 GPUs using our provided training set for 200k steps. For more configuration, please refer to `config/anyenhance_v1.json`.
+
+After downloading the weights, you can extract them to the `pretrained/` folder, the structure should look like this:
+
+```bash
+epoch-83-step-200000-loss-4.4187
+├── checkpoint.pth
+├── model.pt
+├── optimizer.pt
+└── scheduler.pt
+```
+
+### Infer with pretrained model
+
+You can run inference with the pretrained model by specifying `--ckpt_path` to the path of the baseline `model.pt` like this:
+
+```bash
+python infer.py \
+    --config_path "./config/anyenhance_v1.json" \
+    --ckpt_path "./pretrained/epoch-83-step-200000-loss-4.4187/model.pt" \
+    --input_file "./dataset/debug_audio/noisy/2.wav" \
+    --output_folder "./output/"
+```
+
+### Finetune with pretrained model
+
+If you want to finetune the pretrained model, you can use the `--resume_path` argument to specify the path to the baseline folder **(make sure you have prepared the training data as described below)**. The command is as follows:
+
+```bash
+accelerate launch --mixed_precision=fp16 --main_process_port=20086 trainer.py \
+    --config "./config/anyenhance_v1.json" \
+    --exp_path "./exp/" \
+    --resume_path "./pretrained/epoch-83-step-200000-loss-4.4187/"
+```
 
 ## Data Preparation
 
