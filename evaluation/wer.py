@@ -40,8 +40,8 @@ def calculate_wer_score(gt_dir, testset_dir, csv_path, device='cpu', json_path=N
             gt_file = gt_files_dict[filename]
             test_file = test_file
 
-            result_gt = model.transcribe(gt_file)
-            result_pred = model.transcribe(test_file)
+            result_gt = model.transcribe(gt_file, temperature=0)
+            result_pred = model.transcribe(test_file, temperature=0)
             if result_gt['language'] == 'zh':
                 result_gt = model.transcribe(gt_file, initial_prompt="以下是普通话的句子")
             if result_pred['language'] == 'zh':
@@ -55,9 +55,11 @@ def calculate_wer_score(gt_dir, testset_dir, csv_path, device='cpu', json_path=N
             
             if result_gt['language'] == 'zh' and result_pred['language'] == 'zh':
                 wer_score = cer_metric(content_pred, content_gt).item()
+                wer_score = min(wer_score, 1.0)
                 rows.append({"filename": filename, "WER": wer_score, "mode": "CER", "language": "zh", "gt": content_gt, "pred": content_pred})
             else:
                 wer_score = wer_metric(content_pred, content_gt).item()
+                wer_score = min(wer_score, 1.0)
                 rows.append({"filename": filename, "WER": wer_score, "mode": "WER", "language": result_gt['language'], "gt": content_gt, "pred": content_pred})
         else:
             print(f"Warning: No matching GT file found for {filename}")
